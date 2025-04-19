@@ -16,7 +16,7 @@ export default function Footer() {
           lineHeight: '100%',
           letterSpacing: 'clamp(-3.84px, -0.5vw, -6px)',
         }}
-        className="pointer-events-none absolute -bottom-10 overflow-hidden text-[80px] font-bold whitespace-nowrap text-[#3A2A5E] opacity-30 select-none sm:text-[120px] md:-bottom-17 md:text-[160px] lg:-bottom-25"
+        className="pointer-events-none absolute -bottom-10 overflow-hidden text-[80px] font-bold whitespace-nowrap text-[#3A2A5E] opacity-30 select-none sm:text-[120px] md:-bottom-17 md:text-[160px] lg:-bottom-16"
       >
         Eden Finance
       </div>

@@ -1,5 +1,6 @@
 'use client'
-
+import { Avatar, AvatarFallback } from '~/components/ui/avatar'
+import { Skeleton } from '~/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -7,171 +8,165 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from 'ui/table'
-import { Button } from 'ui/button'
-import {
-  ChevronRight,
-  ChevronLeft,
-  Trophy,
-  ExternalLink,
-  Copy,
-} from 'lucide-react'
-import type { UserData, TimeFilter } from './data'
-import { Avatar, AvatarImage, AvatarFallback } from 'ui/avatar'
-import { formatCurrency, formatNumber } from '~/lib/utils'
+} from '~/components/ui/table'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '~/lib/utils'
+
+type TimeFilter = 'day' | 'week' | 'month' | 'all'
+
+interface LeaderboardUser {
+  address: string
+  points: number
+  total_supplied: number
+  total_borrowed: number
+}
 
 interface LeaderboardTableProps {
-  data: UserData[]
+  data: LeaderboardUser[]
   page: number
   setPage: (page: number) => void
   totalPages: number
   totalItems: number
   timeFilter: TimeFilter
+  isLoading?: boolean
 }
 
-export function LeaderboardTable({
+export const LeaderboardTable = ({
   data,
   page,
   setPage,
   totalPages,
   totalItems,
-  timeFilter,
-}: LeaderboardTableProps) {
-  const startItem = (page - 1) * 10 + 1
-  const endItem = Math.min(page * 10, totalItems)
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1)
-    }
+  isLoading = false,
+}: LeaderboardTableProps) => {
+  const truncateAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
 
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage(page + 1)
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(2)}M`
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(2)}K`
     }
-  }
-
-  const getRankDisplay = (index: number) => {
-    const actualRank = startItem + index - 1
-
-    if (actualRank <= 3) {
-      return (
-        <div className="flex justify-center">
-          <Trophy
-            className={`h-5 w-5 ${
-              actualRank === 1
-                ? 'text-yellow-500'
-                : actualRank === 2
-                  ? 'text-gray-300'
-                  : 'text-amber-700'
-            }`}
-          />
-        </div>
-      )
-    }
-
-    return <div className="text-center">#{actualRank}</div>
-  }
-
-  const getPoints = (user: UserData) => {
-    switch (timeFilter) {
-      case 'day':
-        return user.pointsDaily
-      case 'week':
-        return user.pointsWeekly
-      case 'month':
-        return user.pointsMonthly
-      case 'all':
-        return user.pointsAllTime
-      default:
-        return user.pointsWeekly
-    }
+    return num.toFixed(2)
   }
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border border-gray-800">
+    <div className="flex flex-col gap-4">
+      <div className="rounded-lg border border-gray-800 bg-gray-950">
         <Table>
-          <TableHeader className="bg-gray-900">
+          <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px] text-center">Rank</TableHead>
+              <TableHead className="w-[80px]">Rank</TableHead>
               <TableHead>User</TableHead>
-              <TableHead className="text-right">Total Borrowed</TableHead>
-              <TableHead className="text-right">Total Supplies</TableHead>
               <TableHead className="text-right">Points</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
+              <TableHead className="text-right">Supplied</TableHead>
+              <TableHead className="text-right">Borrowed</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((user, index) => (
-              <TableRow key={user.id} className="border-t border-gray-800">
-                <TableCell className="py-3">{getRankDisplay(index)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500">
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-xs text-gray-400">
-                        {user.address}
-                      </div>
+            {isLoading ? (
+              Array.from({ length: 10 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton className="h-6 w-10" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-6 w-32" />
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(user.borrowed)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(user.supplied)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatNumber(getPoints(user))} pts
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-6 w-24" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-6 w-24" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-6 w-24" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  No results found.
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              data.map((user, index) => {
+                const rank = (page - 1) * 10 + index + 1
+
+                return (
+                  <TableRow key={user.address}>
+                    <TableCell className="font-medium">
+                      <span
+                        className={cn(
+                          'flex h-6 w-6 items-center justify-center rounded-full',
+                          rank === 1 && 'bg-amber-500/20 text-amber-500',
+                          rank === 2 && 'bg-slate-400/20 text-slate-400',
+                          rank === 3 && 'bg-amber-800/20 text-amber-800'
+                        )}
+                      >
+                        {rank}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback className="bg-gray-800">
+                            {user.address.slice(2, 4)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <div className="font-medium">
+                            {truncateAddress(user.address)}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatNumber(user.points)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${formatNumber(user.total_supplied)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${formatNumber(user.total_borrowed)}
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            )}
           </TableBody>
         </Table>
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-400">
-          Showing {startItem} to {endItem} of {totalItems} Users
+        <div className="text-sm text-gray-500">
+          Showing {data.length > 0 ? (page - 1) * 10 + 1 : 0} to{' '}
+          {Math.min(page * 10, totalItems)} of {totalItems} results
         </div>
-        <div className="flex gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handlePrevPage}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page === 1}
-            className="h-8 w-8 border-gray-800"
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-800 bg-gray-950 text-gray-400 disabled:opacity-50"
           >
             <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleNextPage}
+          </button>
+          <span className="text-sm">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
-            className="h-8 w-8 border-gray-800"
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-800 bg-gray-950 text-gray-400 disabled:opacity-50"
           >
             <ChevronRight className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

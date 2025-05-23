@@ -1,19 +1,44 @@
 'use client'
 import { Search } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConnectButton from '~/components/miscellaneous/connect-button'
 import { CustomTabs } from '~/components/miscellaneous/custom-tabs'
-import { generateDummyData, TimeFilter, UserData } from './data'
 import { Input } from '~/components/ui/input'
 import { StatsCard } from '~/components/cards/stat-card'
 import { LeaderboardTable } from './leaderboard-table'
+
+type TimeFilter = 'day' | 'week' | 'month' | 'all'
+
+interface LeaderboardUser {
+  address: string
+  points: number
+  total_supplied: number
+  total_borrowed: number
+}
+
+interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  prev_page: number
+  next_page: number
+  total_pages: number
+}
+
+interface LeaderboardResponse {
+  data: LeaderboardUser[]
+  pagination: PaginationInfo
+}
 
 const LeaderBoard = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('week')
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
-  const [data, setData] = useState<UserData[]>([])
-  const [filteredData, setFilteredData] = useState<UserData[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [data, setData] = useState<LeaderboardUser[]>([])
+  const [filteredData, setFilteredData] = useState<LeaderboardUser[]>([])
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const itemsPerPage = 10
 
   const tabOptions = [
@@ -24,56 +49,54 @@ const LeaderBoard = () => {
   ]
 
   useEffect(() => {
-    const generatedData = generateDummyData(100)
-    setData(generatedData)
-  }, [])
+    const fetchLeaderboardData = async () => {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const url = `https://testnet-api.eden-finance.xyz/api/v1/leaderboard/?page=${page}&limit=${itemsPerPage}`
+
+        const response = await fetch(url)
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status}`)
+        }
+
+        const result: LeaderboardResponse = await response.json()
+
+        setData(result.data)
+        setPagination(result.pagination)
+      } catch (err) {
+        console.error('Error fetching leaderboard data:', err)
+        setError('Failed to load leaderboard data. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchLeaderboardData()
+  }, [page])
 
   useEffect(() => {
     let filtered = [...data]
 
     if (searchQuery) {
-      filtered = filtered.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.address.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter((user) =>
+        user.address.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
-    if (timeFilter === 'day') {
-      filtered.sort((a, b) => b.pointsDaily - a.pointsDaily)
-    } else if (timeFilter === 'week') {
-      filtered.sort((a, b) => b.pointsWeekly - a.pointsWeekly)
-    } else if (timeFilter === 'month') {
-      filtered.sort((a, b) => b.pointsMonthly - a.pointsMonthly)
-    } else {
-      filtered.sort((a, b) => b.pointsAllTime - a.pointsAllTime)
-    }
-
     setFilteredData(filtered)
-    setPage(1)
   }, [data, searchQuery, timeFilter])
 
-  const totalUsers = data.length
-  const totalSupplied = filteredData.reduce(
-    (sum, user) => sum + user.supplied,
-    0
-  )
-  const totalBorrowed = filteredData.reduce(
-    (sum, user) => sum + user.borrowed,
-    0
-  )
+  const totalUsers = pagination?.total || 0
+  const totalSupplied = data.reduce((sum, user) => sum + user.total_supplied, 0)
+  const totalBorrowed = data.reduce((sum, user) => sum + user.total_borrowed, 0)
   const availableAssets = 4
 
   const userChange = '+12.5'
   const suppliedChange = '+12.5'
   const borrowedChange = '+12.5'
-
-  // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
-  const paginatedData = filteredData.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  )
 
   return (
     <div className="@container mx-auto flex w-full flex-col gap-8 px-4 py-16 dark:bg-black">
@@ -91,7 +114,10 @@ const LeaderBoard = () => {
         <CustomTabs
           options={tabOptions}
           value={timeFilter}
-          onChange={(value) => setTimeFilter(value as TimeFilter)}
+          onChange={(value) => {
+            setTimeFilter(value as TimeFilter)
+            setPage(1) // Reset to first page when changing time filter
+          }}
         />
 
         <div className="relative">
@@ -131,14 +157,20 @@ const LeaderBoard = () => {
           icon="database"
         />
       </div>
-      <LeaderboardTable
-        data={paginatedData}
-        page={page}
-        setPage={setPage}
-        totalPages={totalPages}
-        totalItems={filteredData.length}
-        timeFilter={timeFilter}
-      />
+
+      {error ? (
+        <div className="rounded-lg bg-red-900/20 p-4 text-red-500">{error}</div>
+      ) : (
+        <LeaderboardTable
+          data={filteredData}
+          page={page}
+          setPage={setPage}
+          totalPages={pagination?.total_pages || 1}
+          totalItems={pagination?.total || 0}
+          timeFilter={timeFilter}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   )
 }

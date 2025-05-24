@@ -16,8 +16,13 @@ export default function Navbar() {
           </div>
           <div className="flex gap-2">
             <ThemeToggle />
-            <Button className="bg-purple-500 text-white hover:bg-purple-600">
-              Launch App
+            <Button
+              className="bg-purple-500 text-white hover:bg-purple-600"
+              asChild
+            >
+              <Link href="https://app.eden-finance.xyz" target="_blank">
+                Launch App
+              </Link>
             </Button>
           </div>
         </div>

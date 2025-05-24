@@ -8,6 +8,7 @@ import {
   Database,
   type LucideIcon,
 } from 'lucide-react'
+import { cn } from '~/lib/utils'
 
 interface StatsCardProps {
   title: string
@@ -15,6 +16,7 @@ interface StatsCardProps {
   change?: string
   subtext?: string
   icon: 'users' | 'trending-up' | 'trending-down' | 'database'
+  loading?: boolean
 }
 
 export function StatsCard({
@@ -23,6 +25,7 @@ export function StatsCard({
   change,
   subtext,
   icon,
+  loading = false,
 }: StatsCardProps) {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { currentTarget: target } = e
@@ -59,18 +62,36 @@ export function StatsCard({
     >
       <div className="card-border" />
       <div className="card-content flex h-full w-full flex-col justify-between rounded-xl bg-gray-950 p-4">
-        <div>
-          <p className="text-xl text-gray-400">{title}</p>
-          <h3 className="mt-3 text-5xl font-bold text-white">{value}</h3>
-          {change && (
-            <p className="mt-3 text-lg text-green-500">
-              {change} from last week
-            </p>
-          )}
-          {subtext && <p className="mt-1 text-sm text-gray-400">{subtext}</p>}
-        </div>
+        <p className="text-xl text-gray-400">{title}</p>
+        {loading ? (
+          <div className="mt-3 space-y-2">
+            <div className="h-12 w-32 animate-pulse rounded bg-gray-800" />
+            {change && (
+              <div className="h-6 w-24 animate-pulse rounded bg-gray-800" />
+            )}
+            {subtext && (
+              <div className="h-4 w-20 animate-pulse rounded bg-gray-800" />
+            )}
+          </div>
+        ) : (
+          <>
+            <h3 className="mt-3 text-5xl font-bold text-white">{value}</h3>
+            {change && (
+              <p className="mt-3 text-lg text-green-500">
+                {change} from last week
+              </p>
+            )}
+            {subtext && <p className="mt-1 text-sm text-gray-400">{subtext}</p>}
+          </>
+        )}
+        {/* <div></div> */}
         <div className="absolute top-6 right-6 ml-auto">
-          <Icon className="h-10 w-10 text-purple-400" />
+          <Icon
+            className={cn(
+              'h-10 w-10',
+              loading ? 'animate-pulse text-gray-600' : 'text-purple-400'
+            )}
+          />
         </div>
       </div>
     </div>

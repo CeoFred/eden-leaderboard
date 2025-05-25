@@ -55,12 +55,6 @@ const TAB_OPTIONS = [
   { value: 'all' as const, label: 'All Time' },
 ] as const
 
-const STAT_CHANGES = {
-  users: '+12.5',
-  supplied: '+8.3',
-  borrowed: '+15.7',
-} as const
-
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
@@ -96,9 +90,10 @@ class LeaderboardAPI {
   }
 
   static async getLeaderboardData(
-    page: number
+    page: number,
+    period: TimeFilter
   ): Promise<LeaderboardResponse | null> {
-    const url = `${API_BASE_URL}/leaderboard/?page=${page}&limit=${ITEMS_PER_PAGE}`
+    const url = `${API_BASE_URL}/leaderboard/?page=${page}&limit=${ITEMS_PER_PAGE}&period=${period}`
     return this.fetchWithErrorHandling<LeaderboardResponse>(url)
   }
 
@@ -118,7 +113,7 @@ const formatStatValue = (
 
   switch (type) {
     case 'currency':
-      return `$${value.toFixed(1)}M`
+      return `$${value.toFixed(1)}`
     case 'number':
       return value.toLocaleString()
     default:
@@ -148,26 +143,31 @@ const LeaderBoard = () => {
     return data.filter((user) => user.address.toLowerCase().includes(query))
   }, [data, debouncedSearchQuery])
 
-  const fetchLeaderboardData = useCallback(async (currentPage: number) => {
-    setLoading(true)
-    setError(null)
+  const fetchLeaderboardData = useCallback(
+    async (currentPage: number, period: TimeFilter) => {
+      setLoading(true)
+      setError(null)
 
-    try {
-      const result = await LeaderboardAPI.getLeaderboardData(currentPage)
-
-      if (result) {
-        setData(result.data)
-        setPagination(result.pagination)
-      } else {
-        setError('Failed to load leaderboard data')
+      try {
+        const result = await LeaderboardAPI.getLeaderboardData(
+          currentPage,
+          period
+        )
+        if (result) {
+          setData(result.data)
+          setPagination(result.pagination)
+        } else {
+          setError('Failed to load leaderboard data')
+        }
+      } catch (err) {
+        setError('An unexpected error occurred')
+        console.error('Leaderboard fetch error:', err)
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      setError('An unexpected error occurred')
-      console.error('Leaderboard fetch error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+    },
+    []
+  )
 
   const fetchStatistics = useCallback(async (period: TimeFilter) => {
     try {
@@ -206,7 +206,7 @@ const LeaderBoard = () => {
   }, [])
 
   useEffect(() => {
-    fetchLeaderboardData(1)
+    fetchLeaderboardData(1, timeFilter)
     fetchStatistics(timeFilter)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -214,14 +214,15 @@ const LeaderBoard = () => {
   useEffect(() => {
     startTransition(async () => {
       await fetchStatistics(timeFilter)
+      fetchLeaderboardData(1, timeFilter)
     })
-  }, [timeFilter, fetchStatistics])
+  }, [timeFilter, fetchStatistics, fetchLeaderboardData])
 
   useEffect(() => {
     if (!debouncedSearchQuery.trim()) {
-      fetchLeaderboardData(page)
+      fetchLeaderboardData(page, timeFilter)
     }
-  }, [page, fetchLeaderboardData, debouncedSearchQuery])
+  }, [page, fetchLeaderboardData, debouncedSearchQuery, timeFilter])
 
   const tableData = debouncedSearchQuery.trim() ? filteredData : data
   const totalItems = debouncedSearchQuery.trim()
@@ -267,7 +268,7 @@ const LeaderBoard = () => {
           />
           <Input
             placeholder="Search by address..."
-            className="w-[300px] border-gray-800 bg-gray-900 pl-8 text-sm"
+            className="w-[300px] border-gray-800 pl-8 text-sm dark:bg-gray-900"
             value={searchQuery}
             onChange={handleSearchChange}
             aria-label="Search addresses"
@@ -279,7 +280,7 @@ const LeaderBoard = () => {
         <StatsCard
           title="Total Users"
           value={formatStatValue(statistics?.total_users, 'number')}
-          change={STAT_CHANGES.users}
+          // change={STAT_CHANGES.users}
           icon="users"
           loading={isPending}
           data-testid="stats-users"
@@ -287,7 +288,7 @@ const LeaderBoard = () => {
         <StatsCard
           title="Total Supplied"
           value={formatStatValue(statistics?.total_supplied, 'currency')}
-          change={STAT_CHANGES.supplied}
+          // change={STAT_CHANGES.supplied}
           icon="trending-up"
           loading={isPending}
           data-testid="stats-supplied"
@@ -295,7 +296,7 @@ const LeaderBoard = () => {
         <StatsCard
           title="Total Borrowed"
           value={formatStatValue(statistics?.total_borrowed, 'currency')}
-          change={STAT_CHANGES.borrowed}
+          // change={STAT_CHANGES.borrowed}
           icon="trending-down"
           loading={isPending}
           data-testid="stats-borrowed"
@@ -318,7 +319,7 @@ const LeaderBoard = () => {
         totalPages={totalPages}
         totalItems={totalItems}
         timeFilter={timeFilter}
-        loading={loading}
+        loading={loading || isPending}
         isSearching={Boolean(debouncedSearchQuery.trim())}
         error={error}
       />

@@ -137,7 +137,7 @@ export function CustomTabs({
   return (
     <div
       className={cn(
-        'relative flex rounded-md bg-gray-900 p-1',
+        'relative flex rounded-md border border-gray-800 p-1 dark:border-none dark:bg-gray-900',
         'focus-within:ring-2 focus-within:ring-purple-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-950',
         className
       )}

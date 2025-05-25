@@ -181,8 +181,8 @@ const LoadingState = () => {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border border-gray-800 bg-gray-900">
-        <div className="grid grid-cols-12 gap-4 border-b border-gray-800 bg-gray-800/50 px-6 py-4 text-sm font-medium text-gray-300">
+      <div className="overflow-hidden rounded-lg border border-gray-800 dark:bg-gray-900">
+        <div className="grid grid-cols-12 gap-4 border-b border-gray-800 px-6 py-4 text-sm font-medium text-gray-300 dark:bg-gray-800/50">
           <div className="col-span-1">Rank</div>
           <div className="col-span-4">User</div>
           <div className="col-span-2 text-right">Total Borrowed</div>
@@ -336,7 +336,7 @@ export function LeaderboardTable({
     <div className={cn('space-y-4', className)}>
       <div className="overflow-hidden rounded-lg border border-gray-800">
         <Table>
-          <TableHeader className="bg-gray-900">
+          <TableHeader className="dark:bg-gray-900">
             <TableRow>
               <TableHead className="w-[80px] text-center">Rank</TableHead>
               <TableHead>User</TableHead>

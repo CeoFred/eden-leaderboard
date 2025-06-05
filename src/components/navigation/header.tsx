@@ -20,7 +20,7 @@ export default function Navbar() {
               className="bg-purple-500 text-white hover:bg-purple-600"
               asChild
             >
-              <Link href="https://app.eden-finance.xyz" target="_blank">
+              <Link href="https://app.edenfinance.org" target="_blank">
                 Launch App
               </Link>
             </Button>

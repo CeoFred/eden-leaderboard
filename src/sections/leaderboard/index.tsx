@@ -236,7 +236,7 @@ const LeaderBoard = () => {
     <div className="@container mx-auto flex w-full flex-col gap-8 px-4 py-16 dark:bg-black">
       <header className="flex items-start justify-between">
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Eden Finance Leaderboard</h1>
+          <h1 className="text-2xl font-bold">Leaderboard</h1>
           <p className="text-gray-400">
             Track the top performers in the Eden Finance ecosystem and see how
             you compare.
@@ -302,9 +302,8 @@ const LeaderBoard = () => {
           data-testid="stats-borrowed"
         />
         <StatsCard
-          title="Available Assets"
+          title="Reserves"
           value={statistics?.total_assets?.toString() || '0'}
-          subtext="total assets"
           icon="database"
           loading={isPending}
           data-testid="stats-assets"

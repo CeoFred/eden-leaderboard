@@ -28,7 +28,7 @@ import { cn } from '~/lib/utils'
 
 const ITEMS_PER_PAGE = 10 as const
 const COPY_TIMEOUT = 2000 as const
-const EXPLORER_BASE_URL = 'https://etherscan.io/address/' as const
+const EXPLORER_BASE_URL = 'https://scan.assetchain.org/address/' as const
 
 interface LeaderboardTableProps {
   data: ApiUserData[]

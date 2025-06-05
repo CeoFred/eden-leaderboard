@@ -27,7 +27,7 @@ export default function Footer() {
           <div className="space-y-4 md:max-w-md">
             <div className="flex items-center gap-2">
               <LogoIcon />
-              <h2 className="text-xl font-medium text-white">Eden Finance</h2>
+              {/* TODO: Add a heading here if needed with proper context */}
             </div>
 
             <p className="text-sm text-gray-300 md:text-base">
@@ -37,29 +37,17 @@ export default function Footer() {
 
             {/* Social icons - mobile and desktop */}
             <div className="flex items-center gap-4 pt-2">
+              
               <Link
-                href="#"
-                className="text-gray-300 transition-colors hover:text-white"
-              >
-                <Instagram size={20} />
-                <span className="sr-only">Instagram</span>
-              </Link>
-              <Link
-                href="#"
+                href="https://github.com/edenfinance"
                 className="text-gray-300 transition-colors hover:text-white"
               >
                 <Github size={20} />
                 <span className="sr-only">GitHub</span>
               </Link>
+              
               <Link
-                href="#"
-                className="text-gray-300 transition-colors hover:text-white"
-              >
-                <Linkedin size={20} />
-                <span className="sr-only">LinkedIn</span>
-              </Link>
-              <Link
-                href="#"
+                href="https://x.com/0xedenfi"
                 className="text-gray-300 transition-colors hover:text-white"
               >
                 <Twitter size={20} />

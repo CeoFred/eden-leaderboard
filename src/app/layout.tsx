@@ -77,16 +77,6 @@ const structuredData = {
     'Track your DeFi performance with Eden Finance Leaderboard on Assetchain. Explore decentralized lending, yield-bearing stablecoins, and AI-driven risk management.',
   'applicationCategory': 'FinanceApplication',
   'operatingSystem': 'Web',
-  'offers': {
-    '@type': 'Offer',
-    'price': '0',
-    'priceCurrency': 'USD',
-  },
-  'aggregateRating': {
-    '@type': 'AggregateRating',
-    'ratingValue': '4.8',
-    'reviewCount': '50',
-  },
   'creator': {
     '@type': 'Organization',
     'name': 'Eden Finance',

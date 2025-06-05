@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Instagram, Github, Linkedin, Twitter } from 'lucide-react'
+import { Github, Twitter } from 'lucide-react'
 import LogoIcon from '../icons/logo'
 
 export default function Footer() {

@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Space_Grotesk } from 'next/font/google'
 import { ThemeProvider } from '~/provider/theme-provider'
 import { retrive_theme } from '~/actions/theme'
+import GoogleAnalytics from '~/components/GoogleAnalytics';
 
 const spaceGrotesk = Space_Grotesk({
   display: "auto",
@@ -122,6 +123,7 @@ export default async function RootLayout({
         <link rel="canonical" href="https://leaderboard.edenfinance.org" />
       </head>
       <body className={cn('scroll-smooth antialiased', spaceGrotesk.variable)}>
+        <GoogleAnalytics />
         <ThemeProvider defaultTheme={theme}>
           <main className="bg-background font-space-grotesk relative mx-auto min-h-dvh w-full max-w-[1500px]">
             {children}

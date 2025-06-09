@@ -108,18 +108,7 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <script 
-          dangerouslySetInnerHTML={{
-            __html:`
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-N6LWHYF9NC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-N6LWHYF9NC');
-</script>`}}
-        />
         <link rel="canonical" href="https://leaderboard.edenfinance.org" />
       </head>
       <body className={cn('scroll-smooth antialiased', spaceGrotesk.variable)}>
